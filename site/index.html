@@ -1,0 +1,52 @@
+<h1>dcs-get</h1>
+<h2>Installation</h2>
+<p>Add to .bashrc:</p>
+<pre>
+#####################
+# dcs-get installer #
+#####################
+if [ ! -n "$SSH_TTY" ]
+then
+        if [[ ! -d /var/tmp/dcs-get || ! -O /var/tmp/dcs-get ]]
+        then
+                cd /var/tmp
+                wget -q http://backus.uwcs.co.uk/dcs-get/dcs-get-install
+                chmod u+x dcs-get-install
+                ./dcs-get-install
+                rm dcs-get-install
+		cd
+        fi
+        export LD_LIBRARY_PATH=/var/tmp/dcs-get/lib
+	export PKG_CONFIG_PATH=/var/tmp/dcs-get/lib/pkgconfig
+        export PATH=/var/tmp/dcs-get/bin:$PATH
+#####################
+# Add dcs-get install (package)-(version)
+# below this comment to install packages on login
+#####################
+fi
+#####################
+# END dcs-get       #
+#####################
+</pre>
+<p>You can view the available packages <a href="packages.json">here</a>,</p>
+<h2>Packaging</h2>
+<p>To package git version 1.2.3 you would run the following commands (may need altering, comments in brackets):</p>
+<pre>
+wget http://theinternet/git-1.2.3.tar.gz (i.e. download the source for your package)
+tar zxf git-1.2.3.tar.gz (extract the source)
+cd git-1.2.3 (go to the source directory)
+./configure --prefix=/var/tmp/dcs-get/git-1.2.3 (configure for installation in appropriate folder under /var/tmp/dcs-get)
+make
+make install
+dcs-get gensymlinks git-1.2.3 (generate symlinks in bin and lib for the package, may need to be done manually for some things)
+dcs-get package git-1.2.3 (build a .tar.gz for the folder and any files linked from bin or lib)
+</pre>
+<p>You now have a file in /var/tmp/dcs-get/downloaded which can be uploaded to backus as a package!</p>
+<h2>Todo</h2>
+<ul>
+<li>Tab complete - see http://aplawrence.com/Unix/customtab.html</li>
+<li>Searching and ordering of list output</li>
+<li>Upload option</li>
+<li>Request option</li>
+<li>Meta packages</li>
+<ul>

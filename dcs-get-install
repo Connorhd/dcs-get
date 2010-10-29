@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# If someone else owns the directory, remove it using cleanup script
+if [[ -d /var/tmp/dcs-get && ! -O /var/tmp/dcs-get ]]
+then
+	/var/tmp/dcs-get/cleanup
+fi
+
+# If the directory doesn't exist create it, cleanup script and grab dcs-get script
+if [ ! -d /var/tmp/dcs-get ]
+then
+	mkdir /var/tmp/dcs-get
+	chmod a+rX /var/tmp/dcs-get
+	cd /var/tmp/dcs-get
+	mkdir bin
+	mkdir lib
+	mkdir downloads
+	mkdir downloaded
+	touch cleanup
+	echo "#!/usr/bin/perl" >> cleanup
+	echo "use File::Path 'rmtree';" >> cleanup
+	echo "rmtree([ '/var/tmp/dcs-get' ]);" >> cleanup
+	chmod a+rx cleanup
+	chmod ug+s cleanup
+	# Get dcs-get
+	cd bin
+	wget -q http://backus.uwcs.co.uk/dcs-get/dcs-get
+	chmod u+x dcs-get
+fi
