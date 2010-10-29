@@ -4,7 +4,7 @@
 if [[ -d /var/tmp/dcs-get && ! -O /var/tmp/dcs-get ]]
 then
 	if [ "$(md5sum /var/tmp/dcs-get/cleanup)" == "a79206b7a10ee067912405d824875549  /var/tmp/dcs-get/cleanup" ]
-	do
+	then
 		/var/tmp/dcs-get/cleanup
 	else
 		echo "Someone has screwed with the cleanup script, hurt them."
