@@ -69,11 +69,15 @@ function install_package($package, $version) {
 		}
 	}
 
-	echo 'Downloading '.$package.'-'.$version."\n";
+	if (!isset($packages->$package->type) || $packages->$package->type != 'meta') {
 
-	// Install
-	shell_exec('curl -# '.BASE_URL.'packages/'.$package.'-'.$version.'.tar.gz | tee '.INSTALL_DIR.'/downloads/'.$package.'-'.$version.'.tar.gz | tar xz -C '.INSTALL_DIR);
-	shell_exec('mv '.INSTALL_DIR.'/downloads/'.$package.'-'.$version.'.tar.gz '.INSTALL_DIR.'/downloaded/'.$package.'-'.$version.'.tar.gz');
+		echo 'Downloading '.$package.'-'.$version."\n";
+
+		// Install
+		shell_exec('curl -# '.BASE_URL.'packages/'.$package.'-'.$version.'.tar.gz | tee '.INSTALL_DIR.'/downloads/'.$package.'-'.$version.'.tar.gz | tar xz -C '.INSTALL_DIR);
+		shell_exec('mv '.INSTALL_DIR.'/downloads/'.$package.'-'.$version.'.tar.gz '.INSTALL_DIR.'/downloaded/'.$package.'-'.$version.'.tar.gz');
+
+	}
 
 	echo 'Installed '.$package.'-'.$version."\n";
 	return true;
@@ -117,7 +121,22 @@ switch ($input[1]) {
 
 		ksort($tmp_pkgs);
 		
-		foreach($tmp_pkgs as $package => $data) {				
+		foreach($tmp_pkgs as $package => $data) {
+			if (!isset($data->type) || $data->type != 'dev') {
+				echo $package.' - '.$data->description.' - Versions: '.implode(', ', $data->version)."\n";
+			}
+		}	
+		break;
+	case 'list-dev':
+	case 'ld':
+		$tmp_pkgs = array();
+		foreach ($packages as $package => $data) {
+			$tmp_pkgs[$package] = $data;
+		}
+
+		ksort($tmp_pkgs);
+		
+		foreach($tmp_pkgs as $package => $data) {
 			echo $package.' - '.$data->description.' - Versions: '.implode(', ', $data->version)."\n";
 		}	
 		break;
@@ -172,7 +191,7 @@ switch ($input[1]) {
 		break;
 	case 'help':
 	default:
-		echo "Try 'list' or 'install', if you know what you are doing 'clean', 'gensymlinks', 'package'\n";
+		echo "Try 'list', 'install', or 'search', if you know what you are doing 'list-dev', 'clean', 'gensymlinks', 'package'\n";
 }
 
 /**

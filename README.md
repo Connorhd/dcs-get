@@ -17,4 +17,3 @@ without root access needing specific linux applications.
 * probably better searching
 * Upload option
 * Request option
-* Meta packages
