@@ -42,9 +42,44 @@ dcs-get gensymlinks git-1.2.3 (generate symlinks in bin and lib for the package,
 dcs-get package git-1.2.3 (build a .tar.gz for the folder and any files linked from bin or lib)
 </pre>
 <p>You now have a file in /var/tmp/dcs-get/downloaded which can be uploaded to backus as a package!</p>
+<h2>Tab Competion</h2>
+Add to .bashrc
+<pre>
+###########################
+# dcs-get tab completion  #
+###########################
+shopt -s progcomp
+complete -F _tabcomp dcs-get
+
+_tabcomp()
+{
+    local cur prev opts base
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts="clean install gensymlinks package"
+
+    if [ ${#COMP_WORDS[@]} -gt 2 ]; then
+      first="${COMP_WORDS[1]}"
+
+      case "$first" in
+        install)
+            COMPREPLY=( $(compgen -W '$(dcs-get simple-list)' -- ${cur}) )
+            return 0
+            ;;
+        *)
+            #TODO Completion for all commands (gensymlinks, package)
+            return 0
+            ;;
+      esac
+    else
+      COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
+      return 0
+    fi
+}
+</pre>
 <h2>Todo</h2>
 <ul>
-<li>Tab complete - see http://aplawrence.com/Unix/customtab.html</li>
 <li>Searching and ordering of list output</li>
 <li>Upload option</li>
 <li>Request option</li>
