@@ -72,7 +72,7 @@ function install_package($package, $version) {
 	echo 'Downloading '.$package.'-'.$version."\n";
 
 	// Install
-	shell_exec('wget -q -O- '.BASE_URL.'packages/'.$package.'-'.$version.'.tar.gz | tee '.INSTALL_DIR.'/downloads/'.$package.'-'.$version.'.tar.gz | tar xz -C '.INSTALL_DIR);
+	shell_exec('curl -# '.BASE_URL.'packages/'.$package.'-'.$version.'.tar.gz | tee '.INSTALL_DIR.'/downloads/'.$package.'-'.$version.'.tar.gz | tar xz -C '.INSTALL_DIR);
 	shell_exec('mv '.INSTALL_DIR.'/downloads/'.$package.'-'.$version.'.tar.gz '.INSTALL_DIR.'/downloaded/'.$package.'-'.$version.'.tar.gz');
 
 	echo 'Installed '.$package.'-'.$version."\n";
