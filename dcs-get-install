@@ -3,7 +3,12 @@
 # If someone else owns the directory, remove it using cleanup script
 if [[ -d /var/tmp/dcs-get && ! -O /var/tmp/dcs-get ]]
 then
-	/var/tmp/dcs-get/cleanup
+	if [ "$(md5sum /var/tmp/dcs-get/cleanup)" == "a79206b7a10ee067912405d824875549  /var/tmp/dcs-get/cleanup" ]
+	do
+		/var/tmp/dcs-get/cleanup
+	else
+		echo "Someone has screwed with the cleanup script, hurt them."
+	fi
 fi
 
 # If the directory doesn't exist create it, cleanup script and grab dcs-get script
