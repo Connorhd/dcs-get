@@ -110,7 +110,14 @@ switch ($input[1]) {
 		break;
 	case 'list':
 	case 'l':
+		$tmp_pkgs = array();
 		foreach ($packages as $package => $data) {
+			$tmp_pkgs[$package] = $data;
+		}
+
+		ksort($tmp_pkgs);
+		
+		foreach($tmp_pkgs as $package => $data) {				
 			echo $package.' - '.$data->description.' - Versions: '.implode(', ', $data->version)."\n";
 		}	
 		break;

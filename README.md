@@ -14,7 +14,7 @@ without root access needing specific linux applications.
 ## Todo list
 
 * Tab complete - see http://aplawrence.com/Unix/customtab.html
-* Ordering of list output (also probably better searching)
+* probably better searching
 * Upload option
 * Request option
 * Meta packages
