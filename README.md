@@ -13,7 +13,6 @@ without root access needing specific linux applications.
 
 ## Todo list
 
-* Tab complete - see http://aplawrence.com/Unix/customtab.html
 * probably better searching
 * Upload option
 * Request option
