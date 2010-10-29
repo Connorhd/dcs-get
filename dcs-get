@@ -82,6 +82,11 @@ function install_package($package, $version) {
 
 $input = $argv;
 switch ($input[1]) {
+	case 'search':
+	case 's':
+		// Bit of a hack maybe should be nicer
+		echo shell_exec('dcs-get l | grep '.$input[2]);
+	break;
 	case 'install':
 	case 'i':
 		array_shift($input);
