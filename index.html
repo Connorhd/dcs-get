@@ -59,24 +59,37 @@ _tabcomp()
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     opts="$(dcs-get commands)"
 
-    if [ ${#COMP_WORDS[@]} -gt 2 ]; then
-      first="${COMP_WORDS[1]}"
+    case ${#COMP_WORDS[@]} in
+      2)
+          COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
+          return 0
+          ;;
+      3)
+          first="${COMP_WORDS[1]}"
 
-      case "$first" in
-        install)
+          case "$first" in
+            install)
+                COMPREPLY=( $(compgen -W '$(dcs-get simple-list)' -- ${cur}) )
+                return 0
+                ;;
+            gensymlinks | package | reinstall)
+                COMPREPLY=( $(compgen -W '$(ls /var/tmp/dcs-get/ | grep -)' -- ${cur}) )
+                return 0
+                ;;
+            *)
+              return 0
+              ;;
+          esac
+          ;;
+      *)
+          if [ ${COMP_WORDS[1]} == install ]; then
             COMPREPLY=( $(compgen -W '$(dcs-get simple-list)' -- ${cur}) )
-            return 0
-            ;;
-        gensymlinks | package)
-            COMPREPLY=( $(compgen -W '$(ls /var/tmp/dcs-get/ |
-grep -)' -- ${cur}) )
-            return 0
-            ;;
-      esac
-    else
-      COMPREPLY=($(compgen -W "${opts}" -- ${cur}))
-      return 0
-    fi
+          fi
+          return 0
+          ;;
+    esac
+
+    return 0
 }
 ######################
 # END tab completion #
