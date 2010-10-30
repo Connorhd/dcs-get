@@ -1,7 +1,10 @@
 #!/usr/bin/php
 <?php
 
-## MY CODE
+echo '<h1>Package Listing</h1>';
+echo "This is an up to date list of all packages available for dcs-get, along with their dependencies.<br><br>";
+
+echo '<h2>Packages</h2>';
 
 error_reporting(0);
 //error_reporting(E_ALL);
@@ -13,241 +16,31 @@ $json = new Services_JSON();
 
 $packages = $json->decode(file_get_contents('http://backus.uwcs.co.uk/dcs-get/packages.json'));
 
-function symlink_dir($from, $to) {
-	$dh = opendir($to);
-	while (false !== ($filename = readdir($dh))) {
-		if (substr($filename,0,1) !== '.') {
-			if (is_file($to.$filename)) {
-				shell_exec('ln -s '.$to.$filename.' '.$from.$filename);
-			} else if (is_dir($to.$filename)) {
-				if (!is_dir($from.$filename))
-					mkdir($from.$filename);
+		$tmp_pkgs = array();
+		$tmp_dep = array();
+		foreach ($packages as $package => $data) {
+			$tmp_pkgs[$package] = $data;
+	}
+
+		ksort($tmp_pkgs);
+
+		foreach($tmp_pkgs as $package => $data) {
+			
+				echo "$package - ";
+				if(!isset($data->description)){ echo "$data->description - ";}
+				echo "Version: ".implode(', ', $data->version)."<br>";
+				echo "<blockquote>";
+				foreach ($data->dependencies as $dep => $stuff) {
+				$tmp_dep[$dep] = $stuff;
+				
+				echo "<li>$stuff[0]</li>";
+				}
+				echo "</blockquote>";
+				}
+
 	
-				symlink_dir($from.$filename.'/', $to.$filename.'/');	
-			}
-		}
-	}
-}
-
-function getsymsto($from, $to) {
-	$files = array();
-	$dh = opendir(INSTALL_DIR.'/'.$from);
-	while (false !== ($filename = readdir($dh))) {
-		if (substr($filename,0,1) !== '.') {
-			if (is_link(INSTALL_DIR.'/'.$from.$filename) && strpos(readlink(INSTALL_DIR.'/'.$from.$filename), INSTALL_DIR.'/'.$to) === 0) {
-				$files[] = $from.$filename;
-			} else if (is_dir(INSTALL_DIR.'/'.$from.$filename)) {
-				$files = array_merge($files, getsymsto($from.$filename.'/', $to));
-			}
-		}
-	}
-	return $files;
-}
-
-function is_installed($package, $version) {
-	return is_dir(INSTALL_DIR.'/'.$package.'-'.$version);
-}
-
-function install_package($package, $version) {
-	global $packages;
-	if (is_installed($package, $version)) {
-		echo 'Already installed '.$package.'-'.$version."\n";
-		return true;
-	}
-
-	if (!isset($packages->$package) || !in_array($version, $packages->$package->version)) {
-		echo 'No such package '.$package.'-'.$version."\n";
-		return false;
-	}
-
-	if (isset($packages->$package->dependencies)) {
-		foreach ($packages->$package->dependencies as $dependency) {
-			if (!is_installed($dependency[0], $dependency[1])) {
-				// TODO: return false = sad
-				install_package($dependency[0], $dependency[1]);
-			}
-		}
-	}
-
-	if (!isset($packages->$package->type) || $packages->$package->type != 'meta') {
-
-		echo 'Downloading '.$package.'-'.$version."\n";
-
-		// Install
-		shell_exec('curl -# '.BASE_URL.'packages/'.$package.'-'.$version.'.tar.gz | tee '.INSTALL_DIR.'/downloads/'.$package.'-'.$version.'.tar.gz | tar xz -C '.INSTALL_DIR);
-		shell_exec('mv '.INSTALL_DIR.'/downloads/'.$package.'-'.$version.'.tar.gz '.INSTALL_DIR.'/downloaded/'.$package.'-'.$version.'.tar.gz');
-
-	}
-
-	echo 'Installed '.$package.'-'.$version."\n";
-	return true;
-}
 
 
-$input = $argv;
-
-if (!isset($input[1])) {
-	$tmp_pkgs = array();
-	foreach ($packages as $package => $data) {
-		if (!isset($data->type) || $data->type != 'dev') {
-			$tmp_pkgs[] = '"'.$package.'" "'.$data->description.'"';
-		}
-	}
-	ksort($tmp_pkgs);
-
-	$install =  shell_exec('zenity --title="DCS GET" --width=500 --height=600 --list  --text "Which packages would you like to install?" --checklist  --column "Pick" --column "Package" --column "Description" FALSE '.implode(' FALSE ',$tmp_pkgs).' --separator=" "');
-	passthru('dcs-get install '.$install);
-} else {
-
-switch ($input[1]) {
-	case 'commands':
-		echo "commands search install list list-dev clean gensymlinks package help";
-	break;
-	case 'search':
-	case 's':
-		// Bit of a hack maybe should be nicer
-		echo shell_exec('dcs-get l | grep '.$input[2]);
-	break;
-	case 'install':
-	case 'i':
-		array_shift($input);
-		array_shift($input);
-		foreach ($input as $package) {
-			if ($package == '%') {
-				foreach ($packages as $package => $data) {
-					install_package($package, $packages->$package->version[0]);
-				}
-			} else if (isset($packages->$package)) {
-				install_package($package, $packages->$package->version[0]);
-			} else {
-				$pack_name = substr($package,0,strrpos($package,'-'));
-				if (isset($packages->$pack_name)) {
-					install_package(substr($package,0,strrpos($package,'-')), substr($package,strrpos($package,'-')+1));
-				} else {
-					echo 'No such package '.$package."\n";
-				}
-			}
-		}
-		break;
-	case 'reinstall':
-	case 'r':
-                array_shift($input);
-                array_shift($input);
-                foreach ($input as $package) {
-                        if ($package == '%') {
-                                foreach ($packages as $package => $data) {
-					shell_exec('rm -rf '.INSTALL_DIR.'/'.$package.'-'.$packages->$package->version[0]);
-                                        install_package($package, $packages->$package->version[0], true);
-                                }
-                        } else if (isset($packages->$package)) {
-				shell_exec('rm -rf '.INSTALL_DIR.'/'.$package.'-'.$packages->$package->version[0]);
-                                install_package($package, $packages->$package->version[0], true);
-                        } else {
-                                $pack_name = substr($package,0,strrpos($package,'-'));
-                                if (isset($packages->$pack_name)) {
-					shell_exec('rm -rf '.INSTALL_DIR.'/'.$package);
-                                        install_package(substr($package,0,strrpos($package,'-')), substr($package,strrpos($package,'-')+1), true);
-                                } else {
-                                        echo 'No such package '.$package."\n";
-                                }
-                        }
-                }
-                break;
-	case 'list':
-	case 'l':
-		$tmp_pkgs = array();
-		foreach ($packages as $package => $data) {
-			$tmp_pkgs[$package] = $data;
-		}
-
-		ksort($tmp_pkgs);
-		
-		foreach($tmp_pkgs as $package => $data) {
-			if (!isset($data->type) || $data->type != 'dev') {
-				echo $package.' - '.$data->description.' - Versions: '.implode(', ', $data->version)."\n";
-			}
-		}	
-		break;
-	case 'list-dev':
-	case 'ld':
-		$tmp_pkgs = array();
-		foreach ($packages as $package => $data) {
-			$tmp_pkgs[$package] = $data;
-		}
-
-		ksort($tmp_pkgs);
-		
-		foreach($tmp_pkgs as $package => $data) {
-			echo $package.' - '.$data->description.' - Versions: '.implode(', ', $data->version)."\n";
-		}	
-		break;
-	case 'simple-list':
-		$tmp_pkgs = array();
-		foreach ($packages as $package => $data) {
-			$tmp_pkgs[$package] = $data;
-		}
-
-		ksort($tmp_pkgs);
-		
-		foreach($tmp_pkgs as $package => $data) {
-			echo $package."\n";
-		}	
-		break;
-	case 'clean':
-	case 'c':
-		`rm -rf /var/tmp/dcs-get`;
-		break;
-	case 'gensymlinks':
-	case 'g':
-		if (is_dir(INSTALL_DIR.'/'.$input[2])) {
-			$version = substr($input[2],strrpos($input[2],'-')+1);
-			// TODO: man, anything else?
-			// bin
-			$dh = opendir(INSTALL_DIR.'/'.$input[2].'/bin');
-			while (false !== ($filename = readdir($dh))) {
-				if (substr($filename,0,1) !== '.' && is_file(INSTALL_DIR.'/'.$input[2].'/bin/'.$filename)) {
-					shell_exec('ln -s '.INSTALL_DIR.'/'.$input[2].'/bin/'.$filename.' '.INSTALL_DIR.'/bin/'.$filename);
-					shell_exec('ln -s '.INSTALL_DIR.'/'.$input[2].'/bin/'.$filename.' '.INSTALL_DIR.'/bin/'.$filename.'-'.$version);
-				}
-			}
-			// lib
-			symlink_dir(INSTALL_DIR.'/lib/', INSTALL_DIR.'/'.$input[2].'/lib/');
-			echo 'Symlinks for '.$input[2].' generated'."\n";
-		} else {
-			echo $input[2].' does not exist'."\n";
-		}
-		break;
-	case 'package':
-	case 'p':
-		if (is_dir(INSTALL_DIR.'/'.$input[2])) {
-			// Files to tar
-			$files = array();
-			$files[] = $input[2];
-			// TODO: man, anything else?
-                        // bin
-                        $dh = opendir(INSTALL_DIR.'/bin');
-                        while (false !== ($filename = readdir($dh))) {
-                                if (substr($filename,0,1) !== '.'
-				    && is_link(INSTALL_DIR.'/bin/'.$filename)
-				    && strpos(readlink(INSTALL_DIR.'/bin/'.$filename), INSTALL_DIR.'/'.$input[2]) === 0) {
-					$files[] = 'bin/'.$filename;					
-                                }
-                        }
-                        // lib
-			$files = array_merge($files, getsymsto('lib/', $input[2].'/lib/'));
-			chdir(INSTALL_DIR);
-			shell_exec('tar czf '.INSTALL_DIR.'/downloaded/'.$input[2].'.tar.gz '.implode(' ',$files));
-			echo INSTALL_DIR.'/downloaded/'.$input[2].'.tar.gz created!'."\n";
-		} else {
-                        echo $input[2].' does not exist'."\n";
-                }
-		break;
-	case 'help':
-	default:
-		echo "Try 'list', 'install', 'reinstall', or 'search', if you know what you are doing 'list-dev', 'clean', 'gensymlinks', 'package'\n";
-}
-
-}
 
 /**
  * Converts to and from JSON format.
