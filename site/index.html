@@ -57,7 +57,7 @@ _tabcomp()
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="clean install gensymlinks package"
+    opts="$(dcs-get commands)"
 
     if [ ${#COMP_WORDS[@]} -gt 2 ]; then
       first="${COMP_WORDS[1]}"
