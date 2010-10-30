@@ -85,6 +85,20 @@ function install_package($package, $version) {
 
 
 $input = $argv;
+
+if (!isset($input[1])) {
+	$tmp_pkgs = array();
+	foreach ($packages as $package => $data) {
+		if (!isset($data->type) || $data->type != 'dev') {
+			$tmp_pkgs[] = '"'.$package.'" "'.$data->description.'"';
+		}
+	}
+	ksort($tmp_pkgs);
+
+	$install =  shell_exec('zenity --title="DCS GET" --width=500 --height=600 --list  --text "Which packages would you like to install?" --checklist  --column "Pick" --column "Package" --column "Description" FALSE '.implode(' FALSE ',$tmp_pkgs).' --separator=" "');
+	passthru('dcs-get install '.$install);
+} else {
+
 switch ($input[1]) {
 	case 'commands':
 		echo "commands search install list list-dev clean gensymlinks package help";
@@ -115,6 +129,29 @@ switch ($input[1]) {
 			}
 		}
 		break;
+	case 'reinstall':
+                array_shift($input);
+                array_shift($input);
+                foreach ($input as $package) {
+                        if ($package == '%') {
+                                foreach ($packages as $package => $data) {
+					shell_exec('rm -rf '.INSTALL_DIR.'/'.$package.'-'.$packages->$package->version[0]);
+                                        install_package($package, $packages->$package->version[0], true);
+                                }
+                        } else if (isset($packages->$package)) {
+				shell_exec('rm -rf '.INSTALL_DIR.'/'.$package.'-'.$packages->$package->version[0]);
+                                install_package($package, $packages->$package->version[0], true);
+                        } else {
+                                $pack_name = substr($package,0,strrpos($package,'-'));
+                                if (isset($packages->$pack_name)) {
+					shell_exec('rm -rf '.INSTALL_DIR.'/'.$package);
+                                        install_package(substr($package,0,strrpos($package,'-')), substr($package,strrpos($package,'-')+1), true);
+                                } else {
+                                        echo 'No such package '.$package."\n";
+                                }
+                        }
+                }
+                break;
 	case 'list':
 	case 'l':
 		$tmp_pkgs = array();
@@ -141,6 +178,18 @@ switch ($input[1]) {
 		
 		foreach($tmp_pkgs as $package => $data) {
 			echo $package.' - '.$data->description.' - Versions: '.implode(', ', $data->version)."\n";
+		}	
+		break;
+	case 'simple-list':
+		$tmp_pkgs = array();
+		foreach ($packages as $package => $data) {
+			$tmp_pkgs[$package] = $data;
+		}
+
+		ksort($tmp_pkgs);
+		
+		foreach($tmp_pkgs as $package => $data) {
+			echo $package."\n";
 		}	
 		break;
 	case 'clean':
@@ -194,7 +243,9 @@ switch ($input[1]) {
 		break;
 	case 'help':
 	default:
-		echo "Try 'list', 'install', or 'search', if you know what you are doing 'list-dev', 'clean', 'gensymlinks', 'package'\n";
+		echo "Try 'list', 'install', 'reinstall', or 'search', if you know what you are doing 'list-dev', 'clean', 'gensymlinks', 'package'\n";
+}
+
 }
 
 /**
