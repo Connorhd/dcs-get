@@ -67,8 +67,9 @@ _tabcomp()
             COMPREPLY=( $(compgen -W '$(dcs-get simple-list)' -- ${cur}) )
             return 0
             ;;
-        *)
-            #TODO Completion for all commands (gensymlinks, package)
+        gensymlinks | package)
+            COMPREPLY=( $(compgen -W '$(ls /var/tmp/dcs-get/ |
+grep -)' -- ${cur}) )
             return 0
             ;;
       esac
@@ -77,6 +78,9 @@ _tabcomp()
       return 0
     fi
 }
+######################
+# END tab completion #
+######################
 </pre>
 <h2>Todo</h2>
 <ul>
