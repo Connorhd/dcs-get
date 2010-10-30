@@ -130,6 +130,7 @@ switch ($input[1]) {
 		}
 		break;
 	case 'reinstall':
+	case 'r':
                 array_shift($input);
                 array_shift($input);
                 foreach ($input as $package) {
