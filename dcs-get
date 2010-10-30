@@ -86,6 +86,9 @@ function install_package($package, $version) {
 
 $input = $argv;
 switch ($input[1]) {
+	case 'commands':
+		echo "commands search install list list-dev clean gensymlinks package help";
+	break;
 	case 'search':
 	case 's':
 		// Bit of a hack maybe should be nicer
