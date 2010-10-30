@@ -16,3 +16,7 @@ without root access needing specific linux applications.
 * probably better searching
 * Upload option
 * Request option
+
+## License
+
+All code written as part of this project falls under an MIT license, included libraries are licensed as described.
