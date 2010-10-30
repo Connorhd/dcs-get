@@ -112,6 +112,29 @@ switch ($input[1]) {
 			}
 		}
 		break;
+	case 'reinstall':
+                array_shift($input);
+                array_shift($input);
+                foreach ($input as $package) {
+                        if ($package == '%') {
+                                foreach ($packages as $package => $data) {
+					shell_exec('rm -rf '.INSTALL_DIR.'/'.$package.'-'.$packages->$package->version[0]);
+                                        install_package($package, $packages->$package->version[0], true);
+                                }
+                        } else if (isset($packages->$package)) {
+				shell_exec('rm -rf '.INSTALL_DIR.'/'.$package.'-'.$packages->$package->version[0]);
+                                install_package($package, $packages->$package->version[0], true);
+                        } else {
+                                $pack_name = substr($package,0,strrpos($package,'-'));
+                                if (isset($packages->$pack_name)) {
+					shell_exec('rm -rf '.INSTALL_DIR.'/'.$package);
+                                        install_package(substr($package,0,strrpos($package,'-')), substr($package,strrpos($package,'-')+1), true);
+                                } else {
+                                        echo 'No such package '.$package."\n";
+                                }
+                        }
+                }
+                break;
 	case 'list':
 	case 'l':
 		$tmp_pkgs = array();
