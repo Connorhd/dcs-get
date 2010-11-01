@@ -101,7 +101,7 @@ if (!isset($input[1])) {
 
 switch ($input[1]) {
 	case 'commands':
-		echo "commands search install reinstall list list-dev clean gensymlinks package help";
+		echo "commands search install reinstall list list-dev clean gensymlinks package help upload";
 	break;
 	case 'search':
 	case 's':
@@ -242,9 +242,30 @@ switch ($input[1]) {
                         echo $input[2].' does not exist'."\n";
                 }
 		break;
+	case 'upload':
+	case 'u':
+		//MAGIC GOES HERE
+		if (file_exists(INSTALL_DIR.'/downloaded/'.$input[2].'.tar.gz')) {
+			$file = '@'.INSTALL_DIR.'/downloaded/'.$input[2].'.tar.gz';
+			$fields = array('upload'=>'true', 'foo'=>$file);
+			echo 'Uploading: '.$file."\n"; 
+			
+			//AND HERE
+			$ch = curl_init(BASE_URL.'uploader.php');
+			curl_setopt($ch, CURLOPT_POST, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-type: MultiPart/Form-Data'));
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $fields); 
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			$postResult = curl_exec($ch); 
+			curl_close($ch);
+			echo $postResult; 
+		} else {
+			echo $input[2].' does not exist.'."\n";
+		}
+		break;
 	case 'help':
 	default:
-		echo "Try 'list', 'install', 'reinstall', or 'search', if you know what you are doing 'list-dev', 'clean', 'gensymlinks', 'package'\n";
+		echo "Try 'list', 'install', 'reinstall', or 'search', if you know what you are doing 'list-dev', 'clean', 'gensymlinks', 'package', 'upload'\n";
 }
 
 }
