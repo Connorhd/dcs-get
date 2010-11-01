@@ -74,7 +74,7 @@ _tabcomp()
                 COMPREPLY=( $(compgen -W '$(dcs-get simple-list)' -- ${cur}) )
                 return 0
                 ;;
-            gensymlinks | package | reinstall)
+            gensymlinks | package | reinstall | upload)
                 COMPREPLY=( $(compgen -W '$(ls /var/tmp/dcs-get/ | grep -)' -- ${cur}) )
                 return 0
                 ;;
