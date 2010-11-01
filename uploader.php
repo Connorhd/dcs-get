@@ -8,7 +8,7 @@ ini_set("memory_limit", "300M");
 if (isset($_POST['upload'])) {
 	if (!empty($_FILES['foo'])) {
 		if ($_FILES['foo']['error'] > 0) {
-			echo "Error: " . $_FILES["foo"]["error"]."\n";
+			echo 'Error: ' . $_FILES['foo']['error']."\n";
 		} else {
 			move_uploaded_file($_FILES['foo']['tmp_name'], 
 			$upload_directory . $_FILES['foo']['name']);	
