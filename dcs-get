@@ -101,7 +101,7 @@ if (!isset($input[1])) {
 
 switch ($input[1]) {
 	case 'commands':
-		echo "commands search install reinstall list list-dev clean gensymlinks package help";
+		echo "commands search install reinstall list list-dev clean gensymlinks package help upload";
 	break;
 	case 'search':
 	case 's':
@@ -246,20 +246,20 @@ switch ($input[1]) {
 	case 'u':
 		//MAGIC GOES HERE
 		if (file_exists(INSTALL_DIR.'/downloaded/'.$input[2].'.tar.gz')) {
-		$file='@'.INSTALL_DIR.'/downloaded/'.$input[2].'.tar.gz'; 
-		$fields = array('upload'=>'true', 'foo'=>$file);
-    		echo "Uploading:$file.\n"; 
-		
-		//AND HERE
-    		$ch = curl_init('http://backus.uwcs.co.uk/uploader.php');
-		curl_setopt($ch, CURLOPT_POST, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $fields); 
-   		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    		$postResult = curl_exec($ch); 
-    		curl_close($ch);
-    		print "$postResult"; 
-		}
-		else { echo $input[2].' does not exist.'."\n";
+			$file = '@'.INSTALL_DIR.'/downloaded/'.$input[2].'.tar.gz';
+			$fields = array('upload'=>'true', 'foo'=>$file);
+			echo 'Uploading: '.$file."\n"; 
+			
+			//AND HERE
+			$ch = curl_init(BASE_URL.'uploader.php');
+			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $fields); 
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			$postResult = curl_exec($ch); 
+			curl_close($ch);
+			echo $postResult; 
+		} else {
+			echo $input[2].' does not exist.'."\n";
 		}
 		break;
 	case 'help':
