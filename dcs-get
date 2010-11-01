@@ -252,7 +252,8 @@ switch ($input[1]) {
 			
 			//AND HERE
 			$ch = curl_init(BASE_URL.'uploader.php');
-			curl_setopt($ch, CURLOPT_POST, 1);
+			curl_setopt($ch, CURLOPT_POST, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-type: MultiPart/Form-Data'));
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $fields); 
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 			$postResult = curl_exec($ch); 
