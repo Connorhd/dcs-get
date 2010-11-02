@@ -70,11 +70,11 @@ _tabcomp()
           first="${COMP_WORDS[1]}"
 
           case "$first" in
-            install)
+            install | i)
                 COMPREPLY=( $(compgen -W '$(dcs-get simple-list)' -- ${cur}) )
                 return 0
                 ;;
-            gensymlinks | package | reinstall | upload)
+            gensymlinks | g | package | p | reinstall | p | upload | u)
                 COMPREPLY=( $(compgen -W '$(ls /var/tmp/dcs-get/ | grep -)' -- ${cur}) )
                 return 0
                 ;;

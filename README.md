@@ -9,12 +9,14 @@ without root access needing specific linux applications.
 
 **dcs-get-install**: Install script
 
-**site/**: Website including installation instructions
+**index.html**: Webpage containing installation 
+instructions
+
+**uploader.php**: Script for handling uploads
 
 ## Todo list
 
 * probably better searching
-* Upload option
 * Request option
 
 ## License
