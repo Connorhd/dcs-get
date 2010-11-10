@@ -22,7 +22,7 @@ then
 	mkdir downloads
 	mkdir downloaded
 	touch cleanup
-	echo "#!/usr/bin/perl" >> cleanup
+	echo "#!/usr/bin/perl" > cleanup
 	echo "use File::Path 'rmtree';" >> cleanup
 	echo "rmtree([ '/var/tmp/dcs-get' ]);" >> cleanup
 	chmod a+rx cleanup
