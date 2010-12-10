@@ -101,11 +101,7 @@ if (!isset($input[1])) {
 
 switch ($input[1]) {
 	case 'commands':
-<<<<<<< HEAD
-		echo "commands search install reinstall list list-dev clean gensymlinks package help";
-=======
 		echo "commands search install reinstall list list-dev clean gensymlinks package help upload";
->>>>>>> upstream/master
 	break;
 	case 'search':
 	case 's':
