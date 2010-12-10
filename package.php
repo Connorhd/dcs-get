@@ -1,4 +1,3 @@
-#!/usr/bin/php
 <?php
 
 echo '<h1>Package Listing</h1>';
