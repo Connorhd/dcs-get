@@ -9,8 +9,8 @@
 <h2>Packages</h2>
 <?php
 
-//error_reporting(0);
-error_reporting(E_ALL);
+error_reporting(0);
+//error_reporting(E_ALL);
 
 define('BASE_URL', 'http://backus.uwcs.co.uk/dcs-get/');
 
