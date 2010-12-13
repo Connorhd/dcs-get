@@ -12,6 +12,8 @@ without root access needing specific linux applications.
 **index.html**: Webpage containing installation 
 instructions
 
+**package.php**: Webpage which outputs all packages in the repository
+
 **uploader.php**: Script for handling uploads
 
 ## Todo list
