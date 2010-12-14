@@ -5,24 +5,31 @@
 #####################
 # dcs-get installer #
 #####################
-if [ ! -n "$SSH_TTY" ]
+if [[ ! -n "$SSH_TTY"  && ! -z "$PS1" ]]
 then
         if [[ ! -d /var/tmp/dcs-get || ! -O /var/tmp/dcs-get ]]
         then
                 cd /var/tmp
-                wget -q http://backus.uwcs.co.uk/dcs-get/dcs-get-install
-                chmod u+x dcs-get-install
-                ./dcs-get-install
-                rm dcs-get-install
+		wget -q -T 30 http://backus.uwcs.co.uk/dcs-get/dcs-get-install
+                if [[ -e /var/tmp/dcs-get-install ]]; then
+                	chmod u+x dcs-get-install
+                	./dcs-get-install
+                	rm dcs-get-install
+		else
+			echo "Backus is down, dcs-get is currently unavailiable."
+		fi
 		cd
         fi
-        export LD_LIBRARY_PATH=/var/tmp/dcs-get/lib
-	export PKG_CONFIG_PATH=/var/tmp/dcs-get/lib/pkgconfig
-        export PATH=/var/tmp/dcs-get/bin:$PATH
+	if [[ -d /var/tmp/dcs-get && -O /var/tmp/dcs-get ]]
+	then
+        	export LD_LIBRARY_PATH=/var/tmp/dcs-get/lib
+		export PKG_CONFIG_PATH=/var/tmp/dcs-get/lib/pkgconfig
+        	export PATH=/var/tmp/dcs-get/bin:$PATH
 #####################
 # Add dcs-get install (package)-(version)
-# below this comment to install packages on login
+# below this comment (and before both 'fi') to install packages on login
 #####################
+	fi
 fi
 #####################
 # END dcs-get       #
