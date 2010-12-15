@@ -5,6 +5,9 @@
 #####################
 # dcs-get installer #
 #####################
+function dcs-get()
+{
+VERSION="1.0"
 if [[ ! -n "$SSH_TTY"  && ! -z "$PS1" ]]
 then
         if [[ ! -d /var/tmp/dcs-get || ! -O /var/tmp/dcs-get ]]
@@ -13,8 +16,15 @@ then
 		wget -q -T 30 http://backus.uwcs.co.uk/dcs-get/dcs-get-install
                 if [[ -e /var/tmp/dcs-get-install ]]; then
                 	chmod u+x dcs-get-install
-                	./dcs-get-install
-                	rm dcs-get-install
+			./dcs-get-install $VERSION
+			if [ $? -ne 0 ]
+			then
+				rm dcs-get-install
+				cd
+				echo "Please update to the latest version of dcs-get at http://backus.uwcs.co.uk/dcs-get/"
+				return 1
+			fi
+			rm dcs-get-install
 		else
 			echo "Backus is down, dcs-get is currently unavailiable."
 		fi
@@ -31,6 +41,9 @@ then
 #####################
 	fi
 fi
+}
+
+dcs-get
 #####################
 # END dcs-get       #
 #####################

@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Check that the versions of dcs-get are the same
+# VERSION should be updated every time the bash script is edited
+VERSION="1.0"
+if [ ! "$1" = $VERSION ]
+then
+        exit 1
+fi
+
 # If someone else owns the directory, remove it using cleanup script
 if [[ -d /var/tmp/dcs-get && ! -O /var/tmp/dcs-get ]]
 then
