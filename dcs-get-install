@@ -5,6 +5,7 @@
 VERSION="1.0"
 if [ ! "$1" = $VERSION ]
 then
+	echo "Please update to the latest version of dcs-get at http://backus.uwcs.co.uk/dcs-get/"
         exit 1
 fi
 
