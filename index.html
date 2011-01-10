@@ -7,16 +7,15 @@
 #####################
 function _dcs-get()
 {
-VERSION="1.0"
 if [[ ! -n "$SSH_TTY"  && ! -z "$PS1" ]]
 then
         if [[ ! -d /var/tmp/dcs-get || ! -O /var/tmp/dcs-get ]]
         then
                 cd /var/tmp
-		wget -q -T 30 http://backus.uwcs.co.uk/dcs-get/dcs-get-install
+		wget -q -T 1 -t 2 http://backus.uwcs.co.uk/dcs-get/dcs-get-install
                 if [[ -e /var/tmp/dcs-get-install ]]; then
                 	chmod u+x dcs-get-install
-			./dcs-get-install $VERSION
+			./dcs-get-install "1.0"
 			if [ $? -ne 0 ]
 			then
 				rm dcs-get-install
