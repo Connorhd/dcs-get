@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
 <title>dcs-get package listing</title>
@@ -18,8 +19,7 @@ $packages = json_decode(file_get_contents(BASE_URL.'packages.json'), true);
 ksort($packages);
 
 foreach($packages as $package => $data) {
-	echo '<ul>';
-	echo '<li>';
+	echo '<ul><li>';
 	echo htmlspecialchars($package).' - ';
 	if (isset($data['description'])) {
 		echo htmlspecialchars($data['description']).' - ';
@@ -32,8 +32,7 @@ foreach($packages as $package => $data) {
 		}
 		echo '</ul>';
 	}
-	echo '</li>';
-	echo '</ul>';
+	echo '</li></ul>';
 }
 ?>
 </body>
