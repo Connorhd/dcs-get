@@ -9,8 +9,12 @@ without root access needing specific linux applications.
 
 **dcs-get-install**: Install script
 
-**index.html**: Webpage containing installation 
+**index.php**: Webpage containing installation 
 instructions
+
+**bashrc**: Code to add to a .bashrc file to install dcs-get
+
+**tabcomplete**: Code to add to a .bashrc file to add tab completion
 
 **package.php**: Webpage which outputs all packages in the repository
 

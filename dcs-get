@@ -193,6 +193,25 @@ switch ($input[1]) {
 			echo $package."\n";
 		}	
 		break;
+	case 'list-installed':
+	case 'li':
+		$tmp_pkgs = array();
+		$ignore = array('.', '..', 'bin', 'cleanup', 'downloads', 'downloaded', 'lib', 'home');
+		$dh = opendir(INSTALL_DIR.'/');
+		while($package = readdir($dh))
+		{
+			if(array_search($package, $ignore)===false)
+			{
+				$tmp_pkgs[$package] = $data;
+			}
+		}
+
+		ksort($tmp_pkgs);
+		
+		foreach($tmp_pkgs as $package => $data) {
+			echo $package."\n";
+		}	
+		break;
 	case 'clean':
 	case 'c':
 		`rm -rf /var/tmp/dcs-get`;
@@ -265,7 +284,7 @@ switch ($input[1]) {
 		break;
 	case 'help':
 	default:
-		echo "Try 'list', 'install', 'reinstall', or 'search', if you know what you are doing 'list-dev', 'clean', 'gensymlinks', 'package', 'upload'\n";
+		echo "Try 'list', 'install', 'reinstall', 'search', or 'list-installed', if you know what you are doing 'list-dev', 'clean', 'gensymlinks', 'package', 'upload'\n";
 }
 
 }
