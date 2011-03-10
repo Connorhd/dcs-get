@@ -127,6 +127,16 @@ var downloadPackage = function (package) {
 		// Extract contents
 		var tar = spawn('tar', ['zx','-C', settings['install_dir']]);
 		util.pump(res, tar.stdin);
+		// Calculate md5sum
+		var md5sum = spawn('md5sum');
+		util.pump(res, md5sum.stdin);
+		var md5hash = '';
+		md5sum.stdout.on('data', function (chunk) {
+			md5hash += chunk;
+		})
+		md5sum.stdout.on('end', function () {
+			console.log("File hash: "+md5hash);
+		});
 	}).on('error', function(e) {
 	        console.log("Error: Problem downloading package.");
         	if (settings.debug) console.log(e);
