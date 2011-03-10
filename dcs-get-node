@@ -1,0 +1,154 @@
+#!/var/tmp/dcs-get/bin/node-0.4.2
+
+// Useful settings
+var settings = {
+	'install_dir': '/var/tmp/dcs-get',
+	'base_host': 'backus.uwcs.co.uk',
+	'base_path': '/dcs-get/',
+	'debug': true
+};
+
+// Global variable for packages
+var packages;
+
+// Node modules
+var 	http = require('http'),
+	fs = require('fs'),
+	util = require('util'),
+	spawn = require('child_process').spawn,
+	exec = require('child_process').exec;
+
+// Grab the package list from backus
+http.get({
+	host: settings['base_host'],
+	port: 80,
+	path: settings['base_path']+'packages.json'
+}, function(res) {
+	res.setEncoding('utf8');
+	var data = '';
+	res.on('data', function (chunk) {
+		data += chunk;
+	});
+	res.on('end', function () {
+		try {
+			packages = JSON.parse(data);
+			packages = sortObject(packages);			
+		} catch (e) {
+			console.log("Error: Problem with package data");
+			if (settings.debug) console.log(e);
+			return;
+		}
+		// We have the package data and are ready to go
+		handleCLI();
+	});
+}).on('error', function(e) {
+	console.log("Error: Problem downloading package list from backus");
+	if (settings.debug) console.log(e);
+
+});
+
+var handleCLI = function () {
+	// Deal with command line input
+	if (process.argv[2] === undefined) {
+		console.log("Try dcs-get help");
+		return;
+	}
+	switch (process.argv[2]) {
+		case "list":
+		case "l":
+			var package;
+			for (packageName in packages) {
+				package = packages[packageName];
+				if (package.type === undefined || package.type != "dev") {
+					console.log(packageName+" - "+package.description+" - Versions: "+package.version.join(", "));
+				}
+			}
+			break;
+		case "list-dev":
+		case "ld":
+			var package;
+			for (packageName in packages) {
+				package = packages[packageName];
+				console.log(packageName+" - "+package.description+" - Versions: "+package.version.join(", "));
+			}
+			break;
+		case "clean":
+		case "c":
+			exec('rm -rf '+settings['install_dir']);
+			console.log("dcs-get completely removed");
+			break;
+		case "search":
+		case "s":
+		case "install":
+		case "i":
+		case "reinstall":
+		case "r":
+		case "list-installed":
+		case "li":
+		case "gensymlinks":
+		case "g":
+		case "package":
+		case "p":
+		case "upload":
+		case "u":
+		case "help":
+			console.log("TODO");
+			break;
+		case "commands":
+			console.log("commands search install reinstall list list-dev clean gensymlinks package help upload");
+			break;
+		default:
+			console.log("Try dcs-get help");
+	}	
+}
+
+
+// Function to download a file, while extracting it
+// TODO: Add callbacks (progress and complete)
+var downloadPackage = function (package) {
+	http.get({
+	        host: settings['base_host'],
+        	port: 80,
+	        path: settings['base_path']+'packages/'+package+'.tar.gz'
+	}, function(res) {
+		var downloaded = 0;
+		res.on('data', function (chunk) {
+			downloaded += chunk.length;
+		});
+		var progress = setInterval(function() {
+			console.log(Math.round((downloaded/res.headers['content-length'])*100)+'%');
+		}, 50);
+		res.on('end', function () {
+			clearInterval(progress);
+			console.log("Package downloaded");
+		});
+		// Save file
+		util.pump(res, fs.createWriteStream(settings['install_dir']+'/downloads/'+package+'.tar.gz'));
+		// Extract contents
+		var tar = spawn('tar', ['zx','-C', settings['install_dir']]);
+		util.pump(res, tar.stdin);
+	}).on('error', function(e) {
+	        console.log("Error: Problem downloading package.");
+        	if (settings.debug) console.log(e);
+	});
+};
+downloadPackage('git-1.7.3.2');
+
+// Useful functions (not written by me)
+function sortObject(o) {
+    var sorted = {},
+    key, a = [];
+
+    for (key in o) {
+        if (o.hasOwnProperty(key)) {
+                a.push(key);
+        }
+    }
+
+    a.sort();
+
+    for (key = 0; key < a.length; key++) {
+        sorted[a[key]] = o[a[key]];
+    }
+    return sorted;
+}
